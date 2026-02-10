@@ -1,0 +1,14 @@
+FROM bitnami/spark:3.5.3
+
+USER root
+
+# Install Hadoop AWS JARs for S3 access
+RUN curl -o /opt/bitnami/spark/jars/hadoop-aws-3.3.4.jar \
+        https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar && \
+    curl -o /opt/bitnami/spark/jars/aws-java-sdk-bundle-1.12.262.jar \
+        https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar
+
+# Install Python dependencies
+RUN pip install --no-cache-dir pyarrow==17.0.0 boto3==1.35.0
+
+USER 1001

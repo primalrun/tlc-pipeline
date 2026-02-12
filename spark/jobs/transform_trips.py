@@ -94,6 +94,9 @@ def main():
     # Add computed columns
     df = df.withColumn(
         "trip_duration_minutes",
+        # dropoff seconds, pickup seconds: convert (dropoff, pickup) from datetime to number of seconds since Unix epoch 19700101
+        # duration seconds: subtract pickup seconds from dropoff seconds
+        # duration minutes: divide duration seconds by 60 to get minutes
         (F.col("dropoff_datetime").cast("long") - F.col("pickup_datetime").cast("long")) / 60.0
     )
 

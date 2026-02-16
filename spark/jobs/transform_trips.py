@@ -42,7 +42,7 @@ COLUMN_RENAMES = {
     "improvement_surcharge": "improvement_surcharge",
     "total_amount": "total_amount",
     "congestion_surcharge": "congestion_surcharge",
-    "airport_fee": "airport_fee",
+    "Airport_fee": "airport_fee",
 }
 
 
@@ -94,10 +94,14 @@ def main():
     # Add computed columns
     df = df.withColumn(
         "trip_duration_minutes",
+<<<<<<< HEAD
         # dropoff seconds, pickup seconds: convert (dropoff, pickup) from datetime to number of seconds since Unix epoch 19700101
         # duration seconds: subtract pickup seconds from dropoff seconds
         # duration minutes: divide duration seconds by 60 to get minutes
         (F.col("dropoff_datetime").cast("long") - F.col("pickup_datetime").cast("long")) / 60.0
+=======
+        (F.unix_timestamp("dropoff_datetime") - F.unix_timestamp("pickup_datetime")) / 60.0
+>>>>>>> a5ca7b3 (Fix timestamp cast and column name in Spark transform)
     )
 
     df = df.withColumn(

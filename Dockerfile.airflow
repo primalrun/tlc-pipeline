@@ -13,4 +13,4 @@ RUN pip install --no-cache-dir \
     boto3==1.35.0 \
     requests==2.32.3 \
     pyarrow==17.0.0 \
-    apache-airflow-providers-apache-spark==4.10.1
+    apache-airflow-providers-apache-spark==4.10.0

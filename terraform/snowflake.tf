@@ -24,22 +24,22 @@ resource "snowflake_schema" "mart" {
   name     = "MART"
 }
 
-resource "snowflake_role" "transform" {
+resource "snowflake_account_role" "transform" {
   name = "TRANSFORM_ROLE"
 }
 
-resource "snowflake_grant_privileges_to_role" "warehouse_usage" {
-  privileges = ["USAGE"]
-  role_name  = snowflake_role.transform.name
+resource "snowflake_grant_privileges_to_account_role" "warehouse_usage" {
+  privileges        = ["USAGE"]
+  account_role_name = snowflake_account_role.transform.name
   on_account_object {
     object_type = "WAREHOUSE"
     object_name = snowflake_warehouse.tlc.name
   }
 }
 
-resource "snowflake_grant_privileges_to_role" "database_usage" {
-  privileges = ["USAGE"]
-  role_name  = snowflake_role.transform.name
+resource "snowflake_grant_privileges_to_account_role" "database_usage" {
+  privileges        = ["USAGE"]
+  account_role_name = snowflake_account_role.transform.name
   on_account_object {
     object_type = "DATABASE"
     object_name = snowflake_database.tlc.name

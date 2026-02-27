@@ -54,6 +54,16 @@ def parse_args():
     return parser.parse_args()
 
 
+def configure_s3a(spark, input_path):
+    """Configure S3A if reading from S3."""
+    if not input_path.startswith("s3"):
+        return
+    conf = spark.sparkContext._jsc.hadoopConfiguration()
+    conf.set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+    conf.set("fs.s3a.endpoint", "s3.amazonaws.com")
+    conf.set("com.amazonaws.services.s3.enableV4", "true")
+
+
 def main():
     args = parse_args()
     year, month = args.year_month.split("-")
@@ -61,6 +71,8 @@ def main():
     spark = SparkSession.builder \
         .appName(f"tlc-transform-{args.year_month}") \
         .getOrCreate()
+
+    configure_s3a(spark, args.input)
 
     # Read raw parquet
     input_path = f"{args.input}/yellow_tripdata_{args.year_month}.parquet"

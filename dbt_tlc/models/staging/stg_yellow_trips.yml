@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_yellow_trips
+    description: "Cleaned and standardized yellow taxi trips from raw source"
+    columns:
+      - name: pickup_datetime
+        description: "Trip start timestamp"
+        tests:
+          - not_null
+      - name: dropoff_datetime
+        description: "Trip end timestamp"
+        tests:
+          - not_null
+      - name: trip_distance
+        description: "Trip distance in miles"
+        tests:
+          - not_null
+      - name: fare_amount
+        description: "Meter fare amount"
+        tests:
+          - not_null
+      - name: payment_type_desc
+        description: "Human-readable payment type"
+        tests:
+          - accepted_values:
+              values: ["Credit Card", "Cash", "No Charge", "Dispute", "Unknown"]

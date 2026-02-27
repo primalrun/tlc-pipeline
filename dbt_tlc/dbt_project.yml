@@ -1,0 +1,22 @@
+name: dbt_tlc
+version: "1.0.0"
+config-version: 2
+
+profile: dbt_tlc
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  dbt_tlc:
+    staging:
+      +schema: STAGING
+      +materialized: view
+    marts:
+      +schema: MART
+      +materialized: table

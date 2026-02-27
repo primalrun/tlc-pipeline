@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: fct_trips
+    description: "Fact table of individual yellow taxi trips with all measures"
+    columns:
+      - name: pickup_datetime
+        tests:
+          - not_null
+      - name: trip_distance
+        tests:
+          - not_null
+      - name: total_amount
+        tests:
+          - not_null
+
+  - name: agg_trips_monthly
+    description: "Monthly aggregated trip metrics by vendor and payment type"
+    columns:
+      - name: trip_month
+        tests:
+          - not_null
+      - name: trip_count
+        tests:
+          - not_null

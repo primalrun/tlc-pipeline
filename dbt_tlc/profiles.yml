@@ -1,0 +1,13 @@
+dbt_tlc:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'TRANSFORM_ROLE') }}"
+      database: TLC
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'TLC_WH') }}"
+      schema: RAW
+      threads: 4

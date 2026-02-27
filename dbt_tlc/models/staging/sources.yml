@@ -1,0 +1,36 @@
+version: 2
+
+sources:
+  - name: raw
+    database: TLC
+    schema: RAW
+    tables:
+      - name: yellow_trips
+        description: "Raw yellow taxi trip data loaded from S3 processed parquet"
+        columns:
+          - name: vendor_id
+            description: "Provider that provided the record (1=Creative Mobile, 2=VeriFone)"
+          - name: pickup_datetime
+            description: "Date and time the meter was engaged"
+          - name: dropoff_datetime
+            description: "Date and time the meter was disengaged"
+          - name: passenger_count
+            description: "Number of passengers (driver-entered)"
+          - name: trip_distance
+            description: "Trip distance in miles"
+          - name: pu_location_id
+            description: "TLC Taxi Zone where the meter was engaged"
+          - name: do_location_id
+            description: "TLC Taxi Zone where the meter was disengaged"
+          - name: payment_type
+            description: "Payment method (1=Credit card, 2=Cash, 3=No charge, 4=Dispute)"
+          - name: fare_amount
+            description: "Meter fare"
+          - name: tip_amount
+            description: "Tip amount (auto-populated for credit card tips)"
+          - name: total_amount
+            description: "Total amount charged to passengers"
+          - name: trip_duration_minutes
+            description: "Computed trip duration in minutes"
+          - name: cost_per_mile
+            description: "Computed fare per mile"

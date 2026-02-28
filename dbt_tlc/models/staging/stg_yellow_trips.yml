@@ -24,4 +24,5 @@ models:
         description: "Human-readable payment type"
         tests:
           - accepted_values:
-              values: ["Credit Card", "Cash", "No Charge", "Dispute", "Unknown"]
+              arguments:
+                values: ["Credit Card", "Cash", "No Charge", "Dispute", "Unknown"]

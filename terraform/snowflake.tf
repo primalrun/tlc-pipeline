@@ -45,3 +45,26 @@ resource "snowflake_grant_privileges_to_account_role" "database_usage" {
     object_name = snowflake_database.tlc.name
   }
 }
+
+# Storage integration for S3 external stage
+resource "snowflake_storage_integration" "s3" {
+  name    = "TLC_S3_INTEGRATION"
+  type    = "EXTERNAL_STAGE"
+  enabled = true
+
+  storage_provider     = "S3"
+  storage_aws_role_arn = aws_iam_role.snowflake.arn
+
+  storage_allowed_locations = ["s3://tlc-pipeline-processed/"]
+}
+
+# External stage — created in phase 2 once trust policy is updated
+resource "snowflake_stage" "processed" {
+  count    = var.snowflake_iam_user_arn != "" ? 1 : 0
+  name     = "TLC_PROCESSED_STAGE"
+  database = snowflake_database.tlc.name
+  schema   = snowflake_schema.raw.name
+  url      = "s3://tlc-pipeline-processed/yellow_tripdata"
+
+  storage_integration = snowflake_storage_integration.s3.name
+}

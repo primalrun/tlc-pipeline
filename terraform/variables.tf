@@ -30,3 +30,15 @@ variable "snowflake_password" {
   type        = string
   sensitive   = true
 }
+
+variable "snowflake_iam_user_arn" {
+  description = "Snowflake IAM user ARN from storage integration (fill in after phase 1 apply)"
+  type        = string
+  default     = ""
+}
+
+variable "snowflake_external_id" {
+  description = "Snowflake external ID from storage integration (fill in after phase 1 apply)"
+  type        = string
+  default     = ""
+}

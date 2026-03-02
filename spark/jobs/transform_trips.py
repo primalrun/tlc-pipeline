@@ -70,6 +70,8 @@ def main():
 
     spark = SparkSession.builder \
         .appName(f"tlc-transform-{args.year_month}") \
+        .config("spark.sql.parquet.outputTimestampType", "TIMESTAMP_MICROS") \
+        .config("spark.sql.parquet.inferTimestampNTZ.enabled", "false") \
         .getOrCreate()
 
     configure_s3a(spark, args.input)

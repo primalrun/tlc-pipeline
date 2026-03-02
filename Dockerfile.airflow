@@ -20,6 +20,8 @@ RUN pip install --no-cache-dir \
     pyspark==3.5.3 \
     snowflake-connector-python==3.12.0
 
+RUN pip install --no-cache-dir dbt-snowflake==1.8.3
+
 # Add S3A JARs so the Spark driver (running in this container) can access S3
 RUN JARS_DIR=$(python -c "import pyspark, os; print(os.path.join(os.path.dirname(pyspark.__file__), 'jars'))") && \
     curl -sL -o $JARS_DIR/hadoop-aws-3.3.4.jar \

@@ -132,4 +132,15 @@ with DAG(
         python_callable=load_to_snowflake,
     )
 
-    download_task >> transform_task >> load_task
+    run_dbt_task = BashOperator(
+        task_id="run_dbt",
+        bash_command="cd /opt/dbt && dbt deps --quiet && dbt run --log-path /tmp/dbt-logs && dbt test --log-path /tmp/dbt-logs",
+        env={
+            **os.environ,
+            "DBT_PROFILES_DIR": "/opt/dbt",
+            # dbt needs CREATE SCHEMA + CREATE TABLE/VIEW on TLC database
+            "SNOWFLAKE_ROLE": "ACCOUNTADMIN",
+        },
+    )
+
+    download_task >> transform_task >> load_task >> run_dbt_task

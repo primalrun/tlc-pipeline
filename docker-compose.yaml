@@ -22,6 +22,7 @@ x-airflow-common: &airflow-common
     - ./airflow/config:/opt/airflow/config
     - ./data:/opt/airflow/data
     - ./spark/jobs:/opt/spark-jobs
+    - ./dbt_tlc:/opt/dbt
     - airflow-logs:/opt/airflow/logs
   depends_on:
     postgres:

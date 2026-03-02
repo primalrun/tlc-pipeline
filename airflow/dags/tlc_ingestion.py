@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 
 import boto3
 import requests
+import snowflake.connector
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
@@ -61,6 +62,40 @@ def download_and_upload_tripdata(**context):
     return f"s3://{S3_BUCKET_RAW}/{s3_key}"
 
 
+def load_to_snowflake(**context):
+    """COPY processed parquet for the given month from S3 into Snowflake."""
+    logical_date = context["logical_date"]
+    year = logical_date.year
+    month = logical_date.month  # integer — matches Spark's partition dir (e.g. month=3)
+
+    conn = snowflake.connector.connect(
+        account=os.environ["SNOWFLAKE_ACCOUNT"],
+        user=os.environ["SNOWFLAKE_USER"],
+        password=os.environ["SNOWFLAKE_PASSWORD"],
+        warehouse=os.environ.get("SNOWFLAKE_WAREHOUSE", "TLC_WH"),
+        database="TLC",
+        schema="RAW",
+        role=os.environ.get("SNOWFLAKE_ROLE", "TRANSFORM_ROLE"),
+    )
+    try:
+        cur = conn.cursor()
+        sql = f"""
+            COPY INTO TLC.RAW.yellow_trips
+            FROM @TLC.RAW.TLC_PROCESSED_STAGE/year={year}/month={month}/
+            PATTERN='.*\\.parquet'
+            FILE_FORMAT = (TYPE = 'PARQUET')
+            MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE
+        """
+        print(f"Running COPY INTO for year={year} month={month}")
+        cur.execute(sql)
+        results = cur.fetchall()
+        rows_loaded = sum(r[3] for r in results) if results else 0
+        files_loaded = len(results)
+        print(f"Loaded {rows_loaded} rows from {files_loaded} file(s)")
+    finally:
+        conn.close()
+
+
 with DAG(
     dag_id="tlc_ingestion",
     default_args=default_args,
@@ -92,4 +127,9 @@ with DAG(
         ),
     )
 
-    download_task >> transform_task
+    load_task = PythonOperator(
+        task_id="load_to_snowflake",
+        python_callable=load_to_snowflake,
+    )
+
+    download_task >> transform_task >> load_task

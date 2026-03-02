@@ -28,6 +28,11 @@ resource "snowflake_account_role" "transform" {
   name = "TRANSFORM_ROLE"
 }
 
+resource "snowflake_grant_account_role" "transform_to_user" {
+  role_name = snowflake_account_role.transform.name
+  user_name = var.snowflake_user
+}
+
 resource "snowflake_grant_privileges_to_account_role" "warehouse_usage" {
   privileges        = ["USAGE"]
   account_role_name = snowflake_account_role.transform.name

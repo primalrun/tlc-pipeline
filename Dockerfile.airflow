@@ -4,7 +4,10 @@ USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gcc \
         python3-dev \
+        openjdk-17-jre-headless \
     && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 USER airflow
 
@@ -13,4 +16,12 @@ RUN pip install --no-cache-dir \
     boto3==1.35.0 \
     requests==2.32.3 \
     pyarrow==17.0.0 \
-    apache-airflow-providers-apache-spark==4.10.0
+    apache-airflow-providers-apache-spark==4.10.0 \
+    pyspark==3.5.3
+
+# Add S3A JARs so the Spark driver (running in this container) can access S3
+RUN JARS_DIR=$(python -c "import pyspark, os; print(os.path.join(os.path.dirname(pyspark.__file__), 'jars'))") && \
+    curl -sL -o $JARS_DIR/hadoop-aws-3.3.4.jar \
+        https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar && \
+    curl -sL -o $JARS_DIR/aws-java-sdk-bundle-1.12.262.jar \
+        https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar

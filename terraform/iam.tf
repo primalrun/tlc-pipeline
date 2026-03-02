@@ -26,8 +26,6 @@ data "aws_iam_policy_document" "pipeline_s3" {
     resources = [
       aws_s3_bucket.raw.arn,
       "${aws_s3_bucket.raw.arn}/*",
-      aws_s3_bucket.staging.arn,
-      "${aws_s3_bucket.staging.arn}/*",
       aws_s3_bucket.processed.arn,
       "${aws_s3_bucket.processed.arn}/*",
     ]

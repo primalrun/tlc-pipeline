@@ -198,14 +198,28 @@ docker compose exec airflow-scheduler \
 | `download_tripdata` | PythonOperator | Downloads `yellow_tripdata_YYYY-MM.parquet` from the TLC website and uploads it to `s3://tlc-pipeline-raw/yellow_tripdata/` |
 | `transform_tripdata` | BashOperator | Submits `transform_trips.py` to the Spark cluster. Drops nulls, filters invalid rows, renames columns to snake_case, adds `trip_duration_minutes` and `cost_per_mile`, writes partitioned parquet to `s3://tlc-pipeline-processed/` |
 | `load_to_snowflake` | PythonOperator | Runs `COPY INTO TLC.RAW.yellow_trips` from the S3 external stage, targeting the specific `year=YYYY/month=M/` partition for the run |
+| `run_dbt` | BashOperator | Runs `dbt run` (rebuilds all models) followed by `dbt test` (10 data quality checks) |
 
 Typical runtimes for a single month (~3M rows):
 
 ```
-download_tripdata   ~20s
-transform_tripdata  ~65s
-load_to_snowflake   ~20s
+download_tripdata   ~16s
+transform_tripdata  ~53s
+load_to_snowflake   ~18s
+run_dbt             ~48s
+─────────────────────────
+total               ~2.5 min
 ```
+
+### On Scheduling
+
+The DAG is defined with `schedule="@monthly"` and `catchup=False`, but this repo uses manual triggers rather than relying on the automatic schedule. There are two reasons:
+
+1. **TLC data lag.** TLC publishes trip data ~2 months after the fact, so a monthly schedule firing on the 1st would consistently fail — the previous month's file doesn't exist yet. A production deployment would either delay the trigger (e.g. run on the 15th, two months back) or use a sensor that polls the TLC website for new file availability.
+
+2. **Local Docker runtime.** Automatic scheduling only works if the stack is continuously running. On a dev laptop this isn't realistic; in production this DAG would run on a managed service such as Amazon MWAA or Google Cloud Composer.
+
+The scheduling primitives are all in place (`@monthly`, `retries=2`, `retry_delay`, `catchup=False`) — the intent is that pointing this at a managed Airflow environment with the right trigger offset is a straightforward operational change, not an architectural one.
 
 ## PySpark Transform
 
@@ -229,10 +243,10 @@ load_to_snowflake   ~20s
 ## dbt Models
 
 ```
-TLC.RAW.yellow_trips          (raw Snowflake table — loaded by DAG)
-    └── TLC.STAGING.stg_yellow_trips   (view — cleans, adds vendor/payment labels)
-            ├── TLC.MART.fct_trips          (table — adds tip_pct)
-            └── TLC.MART.agg_trips_monthly  (table — monthly rollup by vendor + payment type)
+TLC.RAW.yellow_trips                  (raw table — loaded by DAG)
+    └── TLC.RAW_STAGING.stg_yellow_trips   (view — cleans, adds vendor/payment labels)
+            ├── TLC.RAW_MART.fct_trips          (table — adds tip_pct)
+            └── TLC.RAW_MART.agg_trips_monthly  (table — monthly rollup by vendor + payment type)
 ```
 
 `agg_trips_monthly` exposes: `trip_count`, `total_passengers`, `avg_trip_distance_miles`, `avg_trip_duration_minutes`, `avg_fare`, `avg_tip`, `avg_tip_pct`, `total_revenue`, `avg_cost_per_mile`.

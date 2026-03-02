@@ -193,6 +193,8 @@ docker compose exec airflow-scheduler \
 | `load_to_snowflake` | PythonOperator | Runs `COPY INTO TLC.RAW.yellow_trips` from the S3 external stage, targeting the specific `year=YYYY/month=M/` partition for the run |
 | `run_dbt` | BashOperator | Runs `dbt run` (rebuilds all models) followed by `dbt test` (10 data quality checks) |
 
+The pipeline is idempotent — re-running for the same month deletes existing rows before loading, so no duplicates are produced.
+
 Typical runtimes for a single month (~3M rows):
 
 ```

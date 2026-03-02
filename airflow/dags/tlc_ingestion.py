@@ -79,12 +79,22 @@ def load_to_snowflake(**context):
     )
     try:
         cur = conn.cursor()
+
+        # Delete existing rows for this month to ensure idempotency
+        cur.execute(f"""
+            DELETE FROM TLC.RAW.yellow_trips
+            WHERE pickup_datetime >= '{year}-{month:02d}-01'::TIMESTAMP
+              AND pickup_datetime < DATEADD(month, 1, '{year}-{month:02d}-01'::TIMESTAMP)
+        """)
+        print(f"Deleted existing rows for year={year} month={month}")
+
         sql = f"""
             COPY INTO TLC.RAW.yellow_trips
             FROM @TLC.RAW.TLC_PROCESSED_STAGE/year={year}/month={month}/
             PATTERN='.*\\.parquet'
             FILE_FORMAT = (TYPE = 'PARQUET')
             MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE
+            FORCE = TRUE
         """
         print(f"Running COPY INTO for year={year} month={month}")
         cur.execute(sql)

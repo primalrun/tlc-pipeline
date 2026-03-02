@@ -5,30 +5,25 @@ End-to-end data engineering pipeline for NYC Taxi & Limousine Commission (TLC) y
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Airflow DAG (monthly)                    │
-│                                                                 │
-│  ┌──────────────────┐   ┌──────────────────┐   ┌────────────┐  │
-│  │ download_tripdata│──▶│transform_tripdata│──▶│load_to_    │  │
-│  │  (PythonOperator)│   │ (BashOperator /  │   │snowflake   │  │
-│  │                  │   │   PySpark)       │   │(Python-    │  │
-│  └──────────────────┘   └──────────────────┘   │ Operator)  │  │
-│           │                      │             └────────────┘  │
-└───────────┼──────────────────────┼──────────────────┼──────────┘
-            ▼                      ▼                  ▼
-     ┌─────────────┐      ┌──────────────┐   ┌──────────────────┐
-     │  S3 (raw)   │      │ S3(processed)│   │    Snowflake     │
-     │yellow_tripda│      │yellow_tripda │   │ TLC.RAW.         │
-     │ta/YYYY-MM   │      │ta/year=YYYY/ │   │ yellow_trips     │
-     │ .parquet    │      │month=M/*.    │   └──────────────────┘
-     └─────────────┘      │parquet       │             │
-                          └──────────────┘             ▼
-                                               ┌──────────────────┐
-                                               │   dbt (manual)   │
-                                               │ stg_yellow_trips │
-                                               │ fct_trips        │
-                                               │agg_trips_monthly │
-                                               └──────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                             Airflow DAG (monthly)                            │
+│                                                                              │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐  ┌───────────┐  │
+│  │download_tripdat│─▶│transform_tripda│─▶│ load_to_       │─▶│ run_dbt   │  │
+│  │(PythonOperator)│  │(BashOperator / │  │ snowflake      │  │(BashOpera-│  │
+│  │                │  │  PySpark)      │  │(PythonOperator)│  │  tor)     │  │
+│  └────────────────┘  └────────────────┘  └────────────────┘  └───────────┘  │
+│          │                   │                   │                   │       │
+└──────────┼───────────────────┼───────────────────┼───────────────────┼───────┘
+           ▼                   ▼                   ▼                   ▼
+    ┌────────────┐     ┌──────────────┐   ┌──────────────────┐  ┌──────────────┐
+    │  S3 (raw)  │     │S3 (processed)│   │    Snowflake     │  │  Snowflake   │
+    │yellow_trip-│     │yellow_tripda-│   │ TLC.RAW.         │  │ stg_yellow_  │
+    │data/YYYY-MM│     │ta/year=YYYY/ │   │ yellow_trips     │  │ trips        │
+    │ .parquet   │     │month=M/*.    │   └──────────────────┘  │ fct_trips    │
+    └────────────┘     │parquet       │                         │ agg_trips_   │
+                       └──────────────┘                         │ monthly      │
+                                                                └──────────────┘
 ```
 
 ## Tech Stack

@@ -141,9 +141,7 @@ CREATE OR REPLACE TABLE yellow_trips (
     congestion_surcharge  FLOAT,
     airport_fee           FLOAT,
     trip_duration_minutes FLOAT,
-    cost_per_mile         FLOAT,
-    year                  INTEGER,
-    month                 INTEGER
+    cost_per_mile         FLOAT
 );
 ```
 

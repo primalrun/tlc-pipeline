@@ -117,17 +117,12 @@ def main():
          .otherwise(F.lit(None).cast(DoubleType()))
     )
 
-    # Add partition columns
-    df = df.withColumn("year", F.lit(int(year)))
-    df = df.withColumn("month", F.lit(int(month)))
-
-    # Write cleaned parquet partitioned by year/month
-    output_path = args.output
+    # Write cleaned parquet to explicit partition path
+    output_path = f"{args.output}/year={year}/month={int(month)}"
     print(f"Writing to: {output_path}")
 
     df.write \
         .mode("overwrite") \
-        .partitionBy("year", "month") \
         .parquet(output_path)
 
     print(f"Transform complete. Wrote {filtered_count} rows to {output_path}")

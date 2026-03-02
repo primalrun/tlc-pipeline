@@ -43,7 +43,7 @@ End-to-end data engineering pipeline for NYC Taxi & Limousine Commission (TLC) y
 ```
 ├── airflow/
 │   └── dags/
-│       └── tlc_ingestion.py     # Main DAG (3 tasks)
+│       └── tlc_ingestion.py     # Main DAG (4 tasks)
 ├── spark/
 │   └── jobs/
 │       └── transform_trips.py   # PySpark transform job

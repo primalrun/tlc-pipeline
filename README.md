@@ -264,12 +264,12 @@ FROM TLC.RAW_MART.agg_trips_monthly
 ORDER BY trip_month, payment_type_desc;
 ```
 
-**Busiest pickup locations:**
+**Busiest pickup zones:**
 ```sql
-SELECT pu_location_id, COUNT(*) AS trips, ROUND(AVG(fare_amount), 2) AS avg_fare
+SELECT pu_borough, pu_zone, COUNT(*) AS trips, ROUND(AVG(fare_amount), 2) AS avg_fare
 FROM TLC.RAW_MART.fct_trips
-GROUP BY 1
-ORDER BY 2 DESC
+GROUP BY 1, 2
+ORDER BY 3 DESC
 LIMIT 20;
 ```
 
@@ -277,6 +277,23 @@ LIMIT 20;
 ```sql
 SELECT vendor_name, ROUND(AVG(avg_tip_pct), 2) AS avg_tip_pct, SUM(total_revenue) AS total_revenue
 FROM TLC.RAW_MART.agg_trips_monthly
+GROUP BY 1
+ORDER BY 2 DESC;
+```
+
+**Most common pickup-to-dropoff zone pairs:**
+```sql
+SELECT pu_zone, do_zone, COUNT(*) AS trips, ROUND(AVG(total_amount), 2) AS avg_total
+FROM TLC.RAW_MART.fct_trips
+GROUP BY 1, 2
+ORDER BY 3 DESC
+LIMIT 20;
+```
+
+**Average fare by pickup borough:**
+```sql
+SELECT pu_borough, COUNT(*) AS trips, ROUND(AVG(fare_amount), 2) AS avg_fare, ROUND(AVG(tip_pct), 2) AS avg_tip_pct
+FROM TLC.RAW_MART.fct_trips
 GROUP BY 1
 ORDER BY 2 DESC;
 ```

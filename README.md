@@ -246,6 +246,40 @@ TLC.RAW.yellow_trips                  (raw table — loaded by DAG)
 
 `agg_trips_monthly` exposes: `trip_count`, `total_passengers`, `avg_trip_distance_miles`, `avg_trip_duration_minutes`, `avg_fare`, `avg_tip`, `avg_tip_pct`, `total_revenue`, `avg_cost_per_mile`.
 
+## Example Queries
+
+**Row counts per month:**
+```sql
+SELECT DATE_TRUNC('month', pickup_datetime) AS month, COUNT(*) AS trips
+FROM TLC.RAW.yellow_trips
+GROUP BY 1
+ORDER BY 1;
+```
+
+**Monthly revenue and average fare by payment type:**
+```sql
+SELECT trip_month, payment_type_desc, total_revenue, avg_fare, avg_tip_pct
+FROM TLC.RAW_MART.agg_trips_monthly
+ORDER BY trip_month, payment_type_desc;
+```
+
+**Busiest pickup locations:**
+```sql
+SELECT pu_location_id, COUNT(*) AS trips, ROUND(AVG(fare_amount), 2) AS avg_fare
+FROM TLC.RAW_MART.fct_trips
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 20;
+```
+
+**Average tip percentage by vendor:**
+```sql
+SELECT vendor_name, ROUND(AVG(avg_tip_pct), 2) AS avg_tip_pct, SUM(total_revenue) AS total_revenue
+FROM TLC.RAW_MART.agg_trips_monthly
+GROUP BY 1
+ORDER BY 2 DESC;
+```
+
 ## Makefile Reference
 
 ```bash

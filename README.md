@@ -225,6 +225,7 @@ The scheduling primitives are all in place (`@monthly`, `retries=2`, `retry_dela
 - Remove negative fares or distances
 - Remove trip distances > 500 miles
 - Remove passenger count ≤ 0
+- Remove rows where pickup date doesn't match the file's month (TLC files occasionally contain records from adjacent months)
 
 **Column standardization:**
 - Rename TLC schema columns to snake_case (e.g. `VendorID` → `vendor_id`, `Airport_fee` → `airport_fee`)

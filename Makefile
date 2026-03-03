@@ -1,4 +1,4 @@
-.PHONY: up down build restart logs spark-submit spark-local dbt-run download-sample clean
+.PHONY: up down build restart logs spark-submit spark-local dbt-run dbt-docs download-sample clean
 
 up:
 	docker compose up -d
@@ -34,6 +34,9 @@ dbt-run:
 
 dbt-test:
 	cd dbt_tlc && dbt test
+
+dbt-docs:
+	docker compose --profile docs up dbt-docs
 
 # Download sample TLC data
 # Usage: make download-sample YEAR_MONTH=2024-01

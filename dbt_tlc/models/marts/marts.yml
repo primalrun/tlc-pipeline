@@ -2,24 +2,102 @@ version: 2
 
 models:
   - name: fct_trips
-    description: "Fact table of individual yellow taxi trips with all measures"
+    description: >
+      Fact table of individual yellow taxi trips. Includes all measures, human-readable
+      labels for vendor, payment type, rate code, and store-and-forward flag, and
+      pickup/dropoff borough and zone names resolved from the taxi_zone_lookup seed.
     columns:
       - name: pickup_datetime
+        description: "Trip start timestamp (UTC)"
         tests:
           - not_null
+      - name: dropoff_datetime
+        description: "Trip end timestamp (UTC)"
+      - name: trip_month
+        description: "First day of the pickup month"
+      - name: vendor_id
+        description: "Vendor ID (1=Creative Mobile Technologies, 2=VeriFone)"
+      - name: vendor_name
+        description: "Human-readable vendor name"
+      - name: pu_location_id
+        description: "TLC Taxi Zone ID for pickup"
+      - name: pu_borough
+        description: "Borough of the pickup location"
+      - name: pu_zone
+        description: "Taxi zone name of the pickup location"
+      - name: do_location_id
+        description: "TLC Taxi Zone ID for dropoff"
+      - name: do_borough
+        description: "Borough of the dropoff location"
+      - name: do_zone
+        description: "Taxi zone name of the dropoff location"
+      - name: passenger_count
+        description: "Number of passengers (driver-entered)"
+      - name: payment_type
+        description: "Payment method code"
+      - name: payment_type_desc
+        description: "Human-readable payment method"
+      - name: ratecode_id
+        description: "Rate code ID"
+      - name: ratecode_desc
+        description: "Human-readable rate code"
+      - name: store_and_fwd_flag
+        description: "Store-and-forward flag (Y/N)"
+      - name: store_and_fwd_desc
+        description: "Human-readable store-and-forward flag"
       - name: trip_distance
+        description: "Trip distance in miles"
         tests:
           - not_null
+      - name: trip_duration_minutes
+        description: "Trip duration in minutes"
+      - name: fare_amount
+        description: "Meter fare in USD"
+      - name: tip_amount
+        description: "Tip amount in USD (auto-populated for credit card tips)"
       - name: total_amount
+        description: "Total amount charged in USD"
         tests:
           - not_null
+      - name: cost_per_mile
+        description: "Fare per mile (null when trip distance is 0)"
+      - name: tip_pct
+        description: "Tip as a percentage of fare amount"
 
   - name: agg_trips_monthly
-    description: "Monthly aggregated trip metrics by vendor and payment type"
+    description: >
+      Monthly aggregated trip metrics grouped by vendor, payment type, and pickup borough.
+      Built from fct_trips for use in reporting and dashboards.
     columns:
       - name: trip_month
+        description: "First day of the month"
         tests:
           - not_null
+      - name: vendor_name
+        description: "Vendor name"
+      - name: payment_type_desc
+        description: "Payment method"
+      - name: pu_borough
+        description: "Pickup borough"
       - name: trip_count
+        description: "Number of trips"
         tests:
           - not_null
+      - name: total_passengers
+        description: "Total passenger count"
+      - name: avg_trip_distance_miles
+        description: "Average trip distance in miles"
+      - name: avg_trip_duration_minutes
+        description: "Average trip duration in minutes"
+      - name: avg_fare
+        description: "Average meter fare in USD"
+      - name: avg_tip
+        description: "Average tip amount in USD"
+      - name: avg_tip_pct
+        description: "Average tip as a percentage of fare"
+      - name: avg_total_amount
+        description: "Average total amount charged in USD"
+      - name: total_revenue
+        description: "Sum of total_amount across all trips in the group"
+      - name: avg_cost_per_mile
+        description: "Average fare per mile"

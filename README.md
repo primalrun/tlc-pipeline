@@ -158,6 +158,13 @@ make up
 |-----------------|-----------------------|----------------|
 | Airflow UI      | http://localhost:8080 | admin / admin  |
 | Spark Master UI | http://localhost:8081 | —              |
+| dbt Docs        | http://localhost:8082 | —              |
+
+Start the dbt docs server with:
+
+```bash
+make dbt-docs
+```
 
 ### 4. Set up dbt
 
@@ -317,6 +324,7 @@ make spark-submit JOB=transform_trips \
 
 make download-sample YEAR_MONTH=2024-01   # Download raw parquet locally
 make clean                                 # Remove local data/raw and data/processed
+make dbt-docs                              # Generate and serve dbt docs at http://localhost:8082
 ```
 
 ## Data Source

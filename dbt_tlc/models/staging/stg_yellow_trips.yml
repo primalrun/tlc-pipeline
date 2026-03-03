@@ -2,14 +2,18 @@ version: 2
 
 models:
   - name: stg_yellow_trips
-    description: "Cleaned and standardized yellow taxi trips from raw source"
+    description: >
+      Cleaned and standardized yellow taxi trips. Joins the taxi_zone_lookup seed
+      to resolve pickup and dropoff location IDs into borough and zone names.
+      Filters out trips with invalid durations, extreme cost-per-mile values, and
+      pickup dates that don't match the file's month.
     columns:
       - name: pickup_datetime
-        description: "Trip start timestamp"
+        description: "Trip start timestamp (UTC)"
         tests:
           - not_null
       - name: dropoff_datetime
-        description: "Trip end timestamp"
+        description: "Trip end timestamp (UTC)"
         tests:
           - not_null
       - name: trip_distance
@@ -17,12 +21,40 @@ models:
         tests:
           - not_null
       - name: fare_amount
-        description: "Meter fare amount"
+        description: "Meter fare amount in USD"
         tests:
           - not_null
       - name: payment_type_desc
-        description: "Human-readable payment type"
+        description: "Human-readable payment method (Credit Card, Cash, No Charge, Dispute)"
         tests:
           - accepted_values:
               arguments:
                 values: ["Credit Card", "Cash", "No Charge", "Dispute", "Unknown"]
+      - name: vendor_name
+        description: "Human-readable vendor name (Creative Mobile Technologies or VeriFone)"
+      - name: ratecode_id
+        description: "Rate code applied to the trip (integer)"
+      - name: ratecode_desc
+        description: "Human-readable rate code (Standard Rate, JFK, Newark, Nassau or Westchester, Negotiated Fare, Group Ride)"
+      - name: store_and_fwd_flag
+        description: "Whether the trip record was held in vehicle memory before sending (Y/N)"
+      - name: store_and_fwd_desc
+        description: "Human-readable store-and-forward flag (Store and Forward or Live Trip)"
+      - name: pu_location_id
+        description: "TLC Taxi Zone ID where the meter was engaged"
+      - name: pu_borough
+        description: "Borough of the pickup location (Manhattan, Brooklyn, Queens, Bronx, Staten Island, EWR)"
+      - name: pu_zone
+        description: "Taxi zone name of the pickup location"
+      - name: do_location_id
+        description: "TLC Taxi Zone ID where the meter was disengaged"
+      - name: do_borough
+        description: "Borough of the dropoff location"
+      - name: do_zone
+        description: "Taxi zone name of the dropoff location"
+      - name: trip_duration_minutes
+        description: "Computed trip duration in minutes"
+      - name: cost_per_mile
+        description: "Computed fare per mile (null when trip distance is 0)"
+      - name: trip_month
+        description: "First day of the pickup month (date_trunc of pickup_datetime)"

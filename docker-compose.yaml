@@ -112,6 +112,26 @@ services:
     depends_on:
       - spark-master
 
+  dbt-docs:
+    <<: *airflow-common
+    command: >
+      bash -c "cd /opt/dbt &&
+      dbt deps --quiet &&
+      dbt seed --log-path /tmp/dbt-logs &&
+      dbt docs generate --log-path /tmp/dbt-logs &&
+      dbt docs serve --port 8082 --host 0.0.0.0 --no-browser"
+    ports:
+      - "8082:8082"
+    environment:
+      <<: *airflow-env
+      DBT_PROFILES_DIR: /opt/dbt
+      SNOWFLAKE_ROLE: ACCOUNTADMIN
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    profiles:
+      - docs
+
 volumes:
   postgres-data:
   airflow-logs:

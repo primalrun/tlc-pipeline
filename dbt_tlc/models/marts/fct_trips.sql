@@ -14,6 +14,10 @@ select
     passenger_count,
     payment_type,
     payment_type_desc,
+    ratecode_id,
+    ratecode_desc,
+    store_and_fwd_flag,
+    store_and_fwd_desc,
 
     -- Measures
     trip_distance,

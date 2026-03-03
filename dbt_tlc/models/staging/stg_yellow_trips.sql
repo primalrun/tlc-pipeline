@@ -9,6 +9,8 @@ cleaned as (
         dropoff_datetime,
         passenger_count,
         trip_distance,
+        ratecode_id,
+        store_and_fwd_flag,
         pu_location_id,
         do_location_id,
         payment_type,
@@ -38,6 +40,22 @@ cleaned as (
             when 2 then 'VeriFone'
             else 'Unknown'
         end as vendor_name,
+
+        case ratecode_id
+            when 1 then 'Standard Rate'
+            when 2 then 'JFK'
+            when 3 then 'Newark'
+            when 4 then 'Nassau or Westchester'
+            when 5 then 'Negotiated Fare'
+            when 6 then 'Group Ride'
+            else 'Unknown'
+        end as ratecode_desc,
+
+        case store_and_fwd_flag
+            when 'Y' then 'Store and Forward'
+            when 'N' then 'Live Trip'
+            else 'Unknown'
+        end as store_and_fwd_desc,
 
         date_trunc('month', pickup_datetime) as trip_month
 

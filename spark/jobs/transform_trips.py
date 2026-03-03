@@ -97,6 +97,12 @@ def main():
     # Filter invalid passenger counts
     df = df.filter(F.col("passenger_count") > 0)
 
+    # Filter rows where pickup date doesn't match the file's year-month
+    df = df.filter(
+        (F.year("tpep_pickup_datetime") == int(year)) &
+        (F.month("tpep_pickup_datetime") == int(month))
+    )
+
     filtered_count = df.count()
     print(f"After filtering: {filtered_count} ({initial_count - filtered_count} rows removed)")
 

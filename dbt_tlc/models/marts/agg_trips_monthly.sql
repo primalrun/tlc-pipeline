@@ -6,6 +6,7 @@ select
     trip_month,
     vendor_name,
     payment_type_desc,
+    pu_borough,
 
     count(*)                                    as trip_count,
     sum(passenger_count)                        as total_passengers,
@@ -19,5 +20,5 @@ select
     round(avg(cost_per_mile), 2)                as avg_cost_per_mile
 
 from trips
-group by 1, 2, 3
-order by 1, 2, 3
+group by 1, 2, 3, 4
+order by 1, 2, 3, 4

@@ -48,9 +48,11 @@ End-to-end data engineering pipeline for NYC Taxi & Limousine Commission (TLC) y
 │   └── jobs/
 │       └── transform_trips.py   # PySpark transform job
 ├── dbt_tlc/
-│   └── models/
-│       ├── staging/             # stg_yellow_trips (view)
-│       └── marts/               # fct_trips, agg_trips_monthly (tables)
+│   ├── models/
+│   │   ├── staging/             # stg_yellow_trips (view)
+│   │   └── marts/               # fct_trips, agg_trips_monthly (tables)
+│   └── seeds/
+│       └── taxi_zone_lookup.csv # TLC taxi zone → borough/zone name lookup
 ├── terraform/
 │   ├── main.tf                  # Provider config
 │   ├── s3.tf                    # S3 buckets
@@ -171,6 +173,7 @@ Export Snowflake credentials to your shell, then run:
 export SNOWFLAKE_ACCOUNT=...
 export SNOWFLAKE_USER=...
 export SNOWFLAKE_PASSWORD=...
+DBT_PROFILES_DIR=. dbt seed
 DBT_PROFILES_DIR=. dbt run
 DBT_PROFILES_DIR=. dbt test
 ```
@@ -240,12 +243,14 @@ The scheduling primitives are all in place (`@monthly`, `retries=2`, `retry_dela
 
 ```
 TLC.RAW.yellow_trips                  (raw table — loaded by DAG)
-    └── TLC.RAW_STAGING.stg_yellow_trips   (view — cleans, adds vendor/payment labels)
-            ├── TLC.RAW_MART.fct_trips          (table — adds tip_pct)
-            └── TLC.RAW_MART.agg_trips_monthly  (table — monthly rollup by vendor + payment type)
+    └── TLC.RAW_STAGING.stg_yellow_trips   (view — cleans, joins zone names, adds labels)
+            ├── TLC.RAW_MART.fct_trips          (table — adds tip_pct, pickup/dropoff borough+zone)
+            └── TLC.RAW_MART.agg_trips_monthly  (table — monthly rollup by vendor, payment type, borough)
 ```
 
-`agg_trips_monthly` exposes: `trip_count`, `total_passengers`, `avg_trip_distance_miles`, `avg_trip_duration_minutes`, `avg_fare`, `avg_tip`, `avg_tip_pct`, `total_revenue`, `avg_cost_per_mile`.
+Staging joins `taxi_zone_lookup` (dbt seed, 265 NYC taxi zones) to resolve `pu_location_id` and `do_location_id` into human-readable borough and zone names.
+
+`agg_trips_monthly` exposes: `trip_count`, `total_passengers`, `avg_trip_distance_miles`, `avg_trip_duration_minutes`, `avg_fare`, `avg_tip`, `avg_tip_pct`, `total_revenue`, `avg_cost_per_mile`, grouped by `trip_month`, `vendor_name`, `payment_type_desc`, and `pu_borough`.
 
 ## Example Queries
 

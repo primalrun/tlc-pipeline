@@ -1,0 +1,12 @@
+project_name = "tlc-pipeline"
+aws_region   = "us-east-1"
+
+# Snowflake credentials
+snowflake_org      = "MYORG"
+snowflake_account  = "ABC12345"
+snowflake_user     = "your-user"
+snowflake_password = "your-password"
+
+# Phase 2: copy from `terraform apply` outputs after phase 1
+snowflake_iam_user_arn = ""
+snowflake_external_id  = ""

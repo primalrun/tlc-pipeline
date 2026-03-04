@@ -134,8 +134,8 @@ with DAG(
             "--conf spark.hadoop.fs.s3a.endpoint=s3.amazonaws.com "
             "--conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem "
             "/opt/spark-jobs/transform_trips.py "
-            "--input s3a://tlc-pipeline-raw/yellow_tripdata "
-            "--output s3a://tlc-pipeline-processed/yellow_tripdata "
+            "--input s3a://$S3_BUCKET_RAW/yellow_tripdata "
+            "--output s3a://$S3_BUCKET_PROCESSED/yellow_tripdata "
             "--year-month {{ logical_date.strftime('%Y-%m') }}"
         ),
     )

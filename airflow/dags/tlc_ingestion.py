@@ -112,7 +112,7 @@ def load_to_snowflake(**context):
 with DAG(
     dag_id="tlc_ingestion",
     default_args=default_args,
-    description="Download, upload to S3, and transform NYC TLC yellow taxi trip data",
+    description="Download, transform, load to Snowflake, and run dbt for NYC TLC yellow taxi trip data",
     schedule="@monthly",
     start_date=datetime(2024, 1, 1),
     catchup=False,

@@ -1,8 +1,11 @@
 """
 TLC Ingestion DAG
 
-Downloads yellow taxi trip parquet data from the NYC TLC website,
-uploads it to S3 raw bucket, and triggers a PySpark transform job.
+Monthly pipeline for NYC TLC yellow taxi trip data:
+  1. Download monthly parquet from the TLC website and upload to S3 raw bucket
+  2. Transform with PySpark (quality filters, column standardization, computed columns)
+  3. Load processed parquet into Snowflake via COPY INTO (idempotent — pre-deletes existing rows)
+  4. Run dbt (seed, run, test) to rebuild staging, fact, and aggregate models
 """
 
 import os

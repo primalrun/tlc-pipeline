@@ -88,7 +88,7 @@ Fill in `.env`:
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | IAM user credentials with S3 access |
 | `SNOWFLAKE_ACCOUNT` | `{ORG}-{ACCOUNT}` identifier (e.g. `MYORG-ABC12345`) |
 | `SNOWFLAKE_USER` / `SNOWFLAKE_PASSWORD` | Snowflake login |
-| `SNOWFLAKE_ROLE` | Role for COPY INTO — `SYSADMIN` works for account owners |
+| `SNOWFLAKE_ROLE` | Role for COPY INTO — `TRANSFORM_ROLE` (created by Terraform) |
 
 ### 2. Provision infrastructure with Terraform
 
@@ -201,7 +201,7 @@ docker compose exec airflow-scheduler \
 | `download_tripdata` | PythonOperator | Downloads `yellow_tripdata_YYYY-MM.parquet` from the TLC website and uploads it to `s3://tlc-pipeline-raw/yellow_tripdata/` |
 | `transform_tripdata` | BashOperator | Submits `transform_trips.py` to the Spark cluster. Drops nulls, filters invalid rows, renames columns to snake_case, adds `trip_duration_minutes` and `cost_per_mile`, writes partitioned parquet to `s3://tlc-pipeline-processed/` |
 | `load_to_snowflake` | PythonOperator | Runs `COPY INTO TLC.RAW.yellow_trips` from the S3 external stage, targeting the specific `year=YYYY/month=M/` partition for the run |
-| `run_dbt` | BashOperator | Runs `dbt run` (rebuilds all models) followed by `dbt test` (10 data quality checks) |
+| `run_dbt` | BashOperator | Runs `dbt deps`, `dbt seed` (loads taxi zone lookup), `dbt run` (rebuilds all models), and `dbt test` (10 data quality checks) |
 
 The pipeline is idempotent — re-running for the same month deletes existing rows before loading, so no duplicates are produced.
 
@@ -244,7 +244,7 @@ The scheduling primitives are all in place (`@monthly`, `retries=2`, `retry_dela
 - `trip_duration_minutes` — `(dropoff_unix - pickup_unix) / 60`
 - `cost_per_mile` — `fare_amount / trip_distance` (null when distance is 0)
 
-**Output:** snappy-compressed parquet partitioned by `year` / `month`.
+**Output:** snappy-compressed parquet written to `year=YYYY/month=M/` partition path in S3.
 
 ## dbt Models
 

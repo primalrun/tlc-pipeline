@@ -32,7 +32,7 @@ End-to-end data engineering pipeline for NYC Taxi & Limousine Commission (TLC) y
 |-----------------|-------------------------------------|
 | Orchestration   | Apache Airflow 2.9 (LocalExecutor)  |
 | Compute         | Apache Spark 3.5.3 (standalone)     |
-| Cloud storage   | AWS S3 (3 buckets)                  |
+| Cloud storage   | AWS S3 (2 buckets)                  |
 | Data warehouse  | Snowflake                           |
 | Transformation  | dbt-snowflake 1.8                   |
 | Infrastructure  | Terraform (AWS + Snowflake)         |

@@ -89,6 +89,8 @@ Fill in `.env`:
 | `SNOWFLAKE_ACCOUNT` | `{ORG}-{ACCOUNT}` identifier (e.g. `MYORG-ABC12345`) |
 | `SNOWFLAKE_USER` / `SNOWFLAKE_PASSWORD` | Snowflake login |
 | `SNOWFLAKE_ROLE` | Role for COPY INTO — `TRANSFORM_ROLE` (created by Terraform) |
+| `AIRFLOW__CORE__FERNET_KEY` | Fernet key for encrypting Airflow connections — generate with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
+| `AIRFLOW__WEBSERVER__SECRET_KEY` | Secret key for Airflow webserver sessions — any random string |
 
 ### 2. Provision infrastructure with Terraform
 
@@ -168,6 +170,10 @@ make dbt-docs
 
 ### 4. Set up dbt
 
+dbt runs automatically inside the Airflow container as part of the `run_dbt` DAG task — no local installation needed for normal pipeline operation.
+
+To run dbt manually outside of Docker (optional):
+
 ```bash
 cd dbt_tlc
 pip install dbt-snowflake==1.8.3
@@ -241,7 +247,7 @@ The scheduling primitives are all in place (`@monthly`, `retries=2`, `retry_dela
 - Rename TLC schema columns to snake_case (e.g. `VendorID` → `vendor_id`, `Airport_fee` → `airport_fee`)
 
 **Computed columns:**
-- `trip_duration_minutes` — `(dropoff_unix - pickup_unix) / 60`
+- `trip_duration_minutes` — `(unix_timestamp(dropoff_datetime) - unix_timestamp(pickup_datetime)) / 60`
 - `cost_per_mile` — `fare_amount / trip_distance` (null when distance is 0)
 
 **Output:** snappy-compressed parquet written to `year=YYYY/month=M/` partition path in S3.

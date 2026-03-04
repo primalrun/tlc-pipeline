@@ -16,7 +16,7 @@ logs:
 	docker compose logs -f
 
 # Run a PySpark job on the Spark cluster
-# Usage: make spark-submit JOB=transform_trips ARGS="--input /data/raw --output /data/processed --year-month 2024-01"
+# Usage: make spark-submit JOB=transform_trips ARGS="--input s3a://tlc-pipeline-raw/yellow_tripdata --output s3a://tlc-pipeline-processed/yellow_tripdata --year-month 2024-01"
 JOB ?= transform_trips
 ARGS ?=
 spark-submit:

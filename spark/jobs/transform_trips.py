@@ -2,7 +2,14 @@
 PySpark Transform Job — TLC Yellow Taxi Trip Data
 
 Reads raw parquet, applies data quality filters, standardizes column names,
-adds computed columns, and writes cleaned parquet partitioned by year/month.
+adds computed columns, and writes cleaned parquet to a year/month partition path.
+
+Data quality filters applied:
+- Drop rows with nulls in required columns
+- Remove negative fares or distances
+- Remove trip distances > 500 miles (outliers)
+- Remove passenger count <= 0
+- Remove rows where pickup date doesn't match the file's year-month
 """
 
 import argparse
@@ -91,7 +98,7 @@ def main():
     df = df.filter(F.col("fare_amount") >= 0)
     df = df.filter(F.col("total_amount") >= 0)
 
-    # Filter impossible trip distances (negative or > 500 miles)
+    # Filter outlier trip distances (negative or > 500 miles)
     df = df.filter((F.col("trip_distance") >= 0) & (F.col("trip_distance") <= 500))
 
     # Filter invalid passenger counts

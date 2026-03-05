@@ -69,7 +69,7 @@ End-to-end data engineering pipeline for NYC Taxi & Limousine Commission (TLC) y
 ## Prerequisites
 
 - Docker Desktop
-- AWS CLI + account with programmatic access
+- AWS account with programmatic access (access key + secret)
 - Snowflake account (free trial works)
 - Terraform >= 1.6
 

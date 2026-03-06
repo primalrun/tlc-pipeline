@@ -26,6 +26,8 @@ End-to-end data engineering pipeline for NYC Taxi & Limousine Commission (TLC) y
                                                                 └──────────────┘
 ```
 
+![Airflow DAG — all 4 tasks successful](docs/airflow-dag.png)
+
 ## Tech Stack
 
 | Layer           | Technology                          |
